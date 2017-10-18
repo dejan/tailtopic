@@ -3,7 +3,6 @@ package tailtopic
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -36,9 +35,7 @@ func (sr *avroSchemaRegistryDecoder) fetchCodec(version uint32) (*goavro.Codec, 
 	if ok {
 		return v, nil
 	}
-	println("Fetching schema...")
 	schemaURL := sr.schemaregURI + "/schemas/ids/" + strconv.Itoa(int(version))
-	fmt.Printf("Schema URL:\t%s\n", schemaURL)
 	resp, err := http.Get(schemaURL)
 	if err != nil {
 		return nil, err
@@ -47,7 +44,6 @@ func (sr *avroSchemaRegistryDecoder) fetchCodec(version uint32) (*goavro.Codec, 
 	schema, _ := ioutil.ReadAll(resp.Body)
 	res := schemaRegistryResponse{}
 	json.Unmarshal(schema, &res)
-	fmt.Printf("Schema:\t%s\n", res.Schema)
 	codec, err := goavro.NewCodec(res.Schema)
 	if err != nil {
 		return nil, err

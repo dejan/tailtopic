@@ -23,7 +23,6 @@ func (tt *TailTopic) Start() {
 }
 
 func (tt *TailTopic) stop() {
-	tt.printer.println("Initiating shutdown...")
 	close(tt.closing)
 }
 
@@ -38,7 +37,7 @@ func (tt *TailTopic) messageListening() {
 	for msg := range tt.messages {
 		msgVal, err := tt.decoder.decode(msg.Value)
 		if err != nil {
-			fmt.Println("ERROR Unable to decode message!", err)
+			fmt.Fprintf(os.Stderr, "Failed to decode message! %v\n", err)
 			return
 		}
 		tt.printer.println(msgVal)

@@ -2,6 +2,7 @@ package tailtopic
 
 import (
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/Shopify/sarama"
@@ -38,7 +39,7 @@ func (kc *kafkaConsumer) consume(messages chan *message, closing chan bool) erro
 	for _, partition := range partitionList {
 		partitionConsumer, err := consumer.ConsumePartition(kc.topic, partition, kc.offsetVal())
 		if err != nil {
-			fmt.Printf("Failed to start partition consumer: %s\n", err)
+			fmt.Fprintf(os.Stderr, "Failed to start partition consumer: %s\n", err)
 		}
 
 		go func(pc sarama.PartitionConsumer) {
@@ -57,11 +58,10 @@ func (kc *kafkaConsumer) consume(messages chan *message, closing chan bool) erro
 
 	wg.Wait()
 
-	fmt.Println("Done consuming topic", kc.topic)
 	close(messages)
 
 	if err := consumer.Close(); err != nil {
-		fmt.Println("Failed to close consumer: ", err)
+		fmt.Fprintf(os.Stderr, "Failed to close consumer: %s\n", err)
 	}
 
 	return nil
