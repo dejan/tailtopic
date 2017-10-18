@@ -47,7 +47,7 @@ func (tt *TailTopic) messageListening() {
 func (tt *TailTopic) consume() {
 	err := tt.consumer.consume(tt.messages, tt.closing)
 	if err != nil {
-		fmt.Println("Could not start consumer", err)
+		fmt.Fprintf(os.Stderr, "Failed to start consumer! %v\n", err)
 	}
 }
 
