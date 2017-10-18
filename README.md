@@ -30,5 +30,5 @@
 ### Run the command from a container
 
     make
-    docker-compose build tailtopic
-    docker-compose run --rm tailtopic test
+    docker-compose build --no-cache tailtopic
+    docker-compose run --rm tailtopic
