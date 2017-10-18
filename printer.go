@@ -1,6 +1,10 @@
 package tailtopic
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+)
 
 type printer interface {
 	println(a interface{})
@@ -10,5 +14,9 @@ type console struct {
 }
 
 func (c *console) println(a interface{}) {
-	fmt.Println(a)
+	x, err := json.Marshal(a)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error encoding %v to JSON\n", a)
+	}
+	fmt.Println(string(x))
 }
