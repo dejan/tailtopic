@@ -1,8 +1,10 @@
 package tailtopic
 
 import (
-	"strings"
+	"sync"
 	"testing"
+
+	"github.com/linkedin/goavro"
 )
 
 type fakeConsumer struct {
@@ -16,18 +18,12 @@ func (fc *fakeConsumer) consume(messages chan *message, closing chan bool) error
 	return nil
 }
 
-type fakeDecoder struct{}
-
-func (fd *fakeDecoder) decode(bytes []byte) (interface{}, error) {
-	return string(bytes), nil
-}
-
-type fakePrinter struct {
+type fakeDispatcher struct {
 	output chan string
 }
 
-func (fp *fakePrinter) println(a interface{}) {
-	fp.output <- strings.ToUpper(a.(string))
+func (fp *fakeDispatcher) dispatch(a string) {
+	fp.output <- a
 }
 
 func TestStart(t *testing.T) {
@@ -35,8 +31,9 @@ func TestStart(t *testing.T) {
 		in  []byte
 		out string
 	}{
-		{[]byte("kafka"), "KAFKA"},
-		{[]byte("avro"), "AVRO"},
+		{[]byte{0, 0, 0, 0, 1, 12, 118, 97, 108, 117, 101, 49}, `{"f1":"value1"}`},
+		{[]byte{0, 0, 0, 0, 1, 12, 118, 97, 108, 117, 101, 50}, `{"f1":"value2"}`},
+		{[]byte{0, 0, 0, 0, 1, 12, 118, 97, 108, 117, 101, 51}, `{"f1":"value3"}`},
 	}
 
 	data := make([][]byte, len(tests))
@@ -44,11 +41,15 @@ func TestStart(t *testing.T) {
 		data[i] = v.in
 	}
 	output := make(chan string)
+
+	codec, _ := goavro.NewCodec(`{"type":"record","name":"myrecord","fields":[{"name":"f1","type":"string"}]}`)
 	tt := &TailTopic{
 		&fakeConsumer{data},
-		&fakeDecoder{},
-		&fakePrinter{output},
+		&avroSchemaRegistryDecoder{"", &sync.Mutex{}, map[uint32]*goavro.Codec{1: codec}},
+		&jsonFormatter{},
+		&fakeDispatcher{output},
 		make(chan *message, 16),
+		make(chan *string, 16),
 		make(chan bool),
 	}
 	tt.Start()
