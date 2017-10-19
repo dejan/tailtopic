@@ -8,39 +8,48 @@ import (
 
 // TailTopic is the app/command
 type TailTopic struct {
-	consumer consumer
-	decoder  decoder
-	printer  printer
-	messages chan *message
-	closing  chan bool
+	consumer   consumer
+	decoder    decoder
+	formatter  formatter
+	dispatcher dispatcher
+	messages   chan *message
+	output     chan *string
+	closing    chan bool
 }
 
 // Start consuming, decoding and printing messages
 func (tt *TailTopic) Start() {
 	go tt.signalListening()
 	go tt.messageListening()
+	go tt.outputListening()
 	tt.consume()
-}
-
-func (tt *TailTopic) stop() {
-	close(tt.closing)
 }
 
 func (tt *TailTopic) signalListening() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Kill, os.Interrupt)
 	<-signals
-	tt.stop()
+	close(tt.closing)
+}
+
+func (tt *TailTopic) outputListening() {
+	for msg := range tt.output {
+		tt.dispatcher.dispatch(*msg)
+	}
 }
 
 func (tt *TailTopic) messageListening() {
 	for msg := range tt.messages {
 		msgVal, err := tt.decoder.decode(msg.Value)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to decode message! %v\n", err)
+			fmt.Fprintf(os.Stderr, "Failed to decode message! %v %v\n", msgVal, err)
 			return
 		}
-		tt.printer.println(msgVal)
+		j, err := tt.formatter.format(msgVal)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to format message! %v %v\n", j, err)
+		}
+		tt.output <- &j
 	}
 }
 
@@ -56,7 +65,10 @@ func NewKafkaAvroTailTopic(topic, offset, broker, schemaregURI string) *TailTopi
 	return &TailTopic{
 		&kafkaConsumer{topic, offset, broker},
 		newAvroDecoder(schemaregURI),
-		&console{},
-		make(chan *message, 16),
-		make(chan bool)}
+		&jsonFormatter{},
+		&consoleDispatcher{},
+		make(chan *message, 256),
+		make(chan *string, 256),
+		make(chan bool),
+	}
 }

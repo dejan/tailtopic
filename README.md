@@ -31,4 +31,4 @@
 
     make
     docker-compose build --no-cache tailtopic
-    docker-compose run --rm tailtopic
+    docker-compose run --rm tailtopic -b kafka:9092 -s http://schema-registry:8081 -o earliest test
