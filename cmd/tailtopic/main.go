@@ -19,7 +19,8 @@ func main() {
 	flag.Usage = usage
 	broker := flag.String("b", "localhost:9092", "One of the Kafka brokers host:port")
 	schemaregURI := flag.String("s", "http://localhost:8081", "Schema registry URI")
-	offset := flag.String("o", "latest", "Offset to start consuming from. Either \"earliest\" or \"latest\"")
+	offset := flag.String("o", "latest", `Offset to start consuming from. Either "earliest" or "latest"`)
+	format := flag.String("f", "avro", `Serialization format of messages. Either avro" or "msgpack"`)
 
 	flag.Parse()
 	tailargs := flag.Args()
@@ -31,6 +32,6 @@ func main() {
 
 	topic := tailargs[0]
 
-	tailKafkaAvro := tailtopic.NewKafkaAvroTailTopic(topic, *offset, *broker, *schemaregURI)
+	tailKafkaAvro := tailtopic.NewKafkaTailTopic(topic, *offset, *format, *broker, *schemaregURI)
 	tailKafkaAvro.Start()
 }

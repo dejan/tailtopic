@@ -11,6 +11,8 @@
     Options:
     -b string
             One of the Kafka brokers host:port (default "localhost:9092")
+    -f string
+            Serialization format of messages. Either avro" or "msgpack" (default "avro")
     -o string
             Offset to start consuming from. Either "earliest" or "latest" (default "latest")
     -s string
