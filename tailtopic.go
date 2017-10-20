@@ -6,7 +6,7 @@ import (
 	"os/signal"
 )
 
-// TailTopic is the app/command
+// TailTopic holds refrences to the implementations of the message processing parts
 type TailTopic struct {
 	consumer   consumer
 	decoder    decoder
@@ -17,7 +17,7 @@ type TailTopic struct {
 	closing    chan bool
 }
 
-// Start consuming, decoding and printing messages
+// Start consuming, decoding, formatting and dispatching messages
 func (tt *TailTopic) Start() {
 	go tt.signalListening()
 	go tt.messageListening()
@@ -60,11 +60,21 @@ func (tt *TailTopic) consume() {
 	}
 }
 
-// NewKafkaAvroTailTopic creates new TailTopic with Kafka consumer and Avro Decoder
-func NewKafkaAvroTailTopic(topic, offset, broker, schemaregURI string) *TailTopic {
+// NewKafkaTailTopic creates new TailTopic with Kafka
+// consumer and Decoder based on specified format
+func NewKafkaTailTopic(topic, offset, format, broker, schemaregURI string) *TailTopic {
+	var decoder decoder
+	switch format {
+	case "msgpack":
+		decoder = &msgpackDecoder{}
+	case "avro":
+		fallthrough
+	default:
+		decoder = newAvroDecoder(schemaregURI)
+	}
 	return &TailTopic{
 		&kafkaConsumer{topic, offset, broker},
-		newAvroDecoder(schemaregURI),
+		decoder,
 		&jsonFormatter{},
 		&consoleDispatcher{},
 		make(chan *message, 256),
