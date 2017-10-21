@@ -23,7 +23,7 @@ func (kc *kafkaConsumer) offsetVal() int64 {
 	}
 }
 
-func (kc *kafkaConsumer) consume(messages chan *message, closing chan bool) error {
+func (kc *kafkaConsumer) consume(messages chan []byte, closing chan bool) error {
 	var wg sync.WaitGroup
 
 	consumer, err := sarama.NewConsumer([]string{kc.broker}, nil)
@@ -51,7 +51,7 @@ func (kc *kafkaConsumer) consume(messages chan *message, closing chan bool) erro
 		go func(pc sarama.PartitionConsumer) {
 			defer wg.Done()
 			for msg := range pc.Messages() {
-				messages <- &message{msg.Value}
+				messages <- msg.Value
 			}
 		}(partitionConsumer)
 	}
