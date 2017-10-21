@@ -12,7 +12,7 @@ type TailTopic struct {
 	decoder    decoder
 	formatter  formatter
 	dispatcher dispatcher
-	messages   chan *message
+	messages   chan []byte
 	output     chan *string
 	closing    chan bool
 }
@@ -40,7 +40,7 @@ func (tt *TailTopic) outputListening() {
 
 func (tt *TailTopic) messageListening() {
 	for msg := range tt.messages {
-		msgVal, err := tt.decoder.decode(msg.Value)
+		msgVal, err := tt.decoder.decode(msg)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to decode message! %v %v\n", msgVal, err)
 			continue
@@ -77,7 +77,7 @@ func NewKafkaTailTopic(topic, offset, format, broker, schemaregURI string) *Tail
 		decoder,
 		&jsonFormatter{},
 		&consoleDispatcher{},
-		make(chan *message, 256),
+		make(chan []byte, 256),
 		make(chan *string, 256),
 		make(chan bool),
 	}

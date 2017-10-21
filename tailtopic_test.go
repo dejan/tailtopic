@@ -11,9 +11,9 @@ type fakeConsumer struct {
 	data [][]byte
 }
 
-func (fc *fakeConsumer) consume(messages chan *message, closing chan bool) error {
-	for _, m := range fc.data {
-		messages <- &message{m}
+func (fc *fakeConsumer) consume(messages chan []byte, closing chan bool) error {
+	for _, msg := range fc.data {
+		messages <- msg
 	}
 	return nil
 }
@@ -48,7 +48,7 @@ func TestStart(t *testing.T) {
 		&avroSchemaRegistryDecoder{"", &sync.Mutex{}, map[uint32]*goavro.Codec{1: codec}},
 		&jsonFormatter{},
 		&fakeDispatcher{output},
-		make(chan *message, 16),
+		make(chan []byte, 16),
 		make(chan *string, 16),
 		make(chan bool),
 	}
