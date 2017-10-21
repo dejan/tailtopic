@@ -41,7 +41,10 @@ func (sr *avroSchemaRegistryDecoder) fetchCodec(version uint32) (*goavro.Codec, 
 		return nil, err
 	}
 	defer resp.Body.Close()
-	schema, _ := ioutil.ReadAll(resp.Body)
+	schema, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	res := schemaRegistryResponse{}
 	err = json.Unmarshal(schema, &res)
 	if err != nil {
