@@ -10,7 +10,7 @@ import (
 //
 // Message flows through components like this:
 // consumer -|
-//           |(consumed)
+//           | (consumed)
 //           |- decoder -> formatter -|
 //                                    | (formatted)
 //                                    |- dispatcher
@@ -27,8 +27,8 @@ type TailTopic struct {
 // Start kicks off consuming, decoding, formatting and dispatching messages
 func (tt *TailTopic) Start() {
 	go tt.signalListening()
-	go tt.messageListening()
-	go tt.outputListening()
+	go tt.consumedListening()
+	go tt.formattedListening()
 	tt.consume()
 }
 
@@ -39,13 +39,7 @@ func (tt *TailTopic) signalListening() {
 	close(tt.closing)
 }
 
-func (tt *TailTopic) outputListening() {
-	for msg := range tt.formatted {
-		tt.dispatcher.dispatch(*msg)
-	}
-}
-
-func (tt *TailTopic) messageListening() {
+func (tt *TailTopic) consumedListening() {
 	for msg := range tt.consumed {
 		msgVal, err := tt.decoder.decode(msg)
 		if err != nil {
@@ -57,6 +51,12 @@ func (tt *TailTopic) messageListening() {
 			fmt.Fprintf(os.Stderr, "Failed to format message! %v %v\n", j, err)
 		}
 		tt.formatted <- &j
+	}
+}
+
+func (tt *TailTopic) formattedListening() {
+	for msg := range tt.formatted {
+		tt.dispatcher.dispatch(*msg)
 	}
 }
 
