@@ -35,4 +35,4 @@ Kafka console consumer in Go. Supports Avro and MessagePack decoding.
 
     make
     docker-compose build --no-cache tailtopic
-    docker-compose run --rm tailtopic -b kafka:9092 -s http://schema-registry:8081 -o earliest test
+    docker-compose run --rm tailtopic -b kafka:9092 -s http://schema-registry:8081 -o earliest -d avro test
