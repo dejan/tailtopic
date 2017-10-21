@@ -7,13 +7,6 @@ import (
 )
 
 // TailTopic holds refrences of message processing components.
-//
-// Message flows through components like this:
-// consumer -|
-//           | (consumed)
-//           |- decoder -> formatter -|
-//                                    | (formatted)
-//                                    |- dispatcher
 type TailTopic struct {
 	consumer   consumer
 	decoder    decoder
@@ -24,7 +17,14 @@ type TailTopic struct {
 	closing    chan bool
 }
 
-// Start kicks off consuming, decoding, formatting and dispatching messages
+// Start kicks off consuming and message processing.
+// Messages flow through components like this:
+//
+// consumer -|
+//           | (consumed)
+//           |- decoder -> formatter -|
+//                                    | (formatted)
+//                                    |- dispatcher
 func (tt *TailTopic) Start() {
 	go tt.signalListening()
 	go tt.consumedListening()
