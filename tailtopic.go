@@ -8,7 +8,7 @@ import (
 
 // TailTopic holds refrences of message processing components.
 //
-// Lifecycle of a message can be represented like this:
+// Message flows through components like this:
 // consumer -|
 //           |(consumed)
 //           |- decoder -> formatter -|
@@ -67,22 +67,27 @@ func (tt *TailTopic) consume() {
 	}
 }
 
-// NewKafkaTailTopic creates new TailTopic with Kafka consumer
-// and Decoder based on the specified format
-func NewKafkaTailTopic(topic, offset, format, broker, schemaregURI string) *TailTopic {
+// NewKafkaTailTopic creates new TailTopic with Kafka consumer and specified decoder
+func NewKafkaTailTopic(topic, offset, msgDecoder, broker, schemaregURI string) *TailTopic {
 	var decoder decoder
-	switch format {
+	var formatter formatter
+	switch msgDecoder {
+	case "avro":
+		decoder = newAvroDecoder(schemaregURI)
+		formatter = &jsonFormatter{}
 	case "msgpack":
 		decoder = &msgpackDecoder{}
-	case "avro":
+		formatter = &jsonFormatter{}
+	case "none":
 		fallthrough
 	default:
-		decoder = newAvroDecoder(schemaregURI)
+		decoder = &noopDecoder{}
+		formatter = &noopFormatter{}
 	}
 	return &TailTopic{
 		&kafkaConsumer{topic, offset, broker},
 		decoder,
-		&jsonFormatter{},
+		formatter,
 		&consoleDispatcher{},
 		make(chan []byte, 256),
 		make(chan *string, 256),

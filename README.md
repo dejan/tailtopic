@@ -1,5 +1,7 @@
 # tailtopic
 
+Kafka console consumer in Go. Supports Avro and MessagePack decoding.
+
 ## Install
 
     go install github.com/dejan/tailtopic/cmd/tailtopic
@@ -9,14 +11,14 @@
     Usage: tailtopic <options> topicname
 
     Options:
-    -b string
+      -b string
             One of the Kafka brokers host:port (default "localhost:9092")
-    -f string
-            Serialization format of messages. Either avro" or "msgpack" (default "avro")
-    -o string
+      -d string
+            Message decoder. Either "avro", "msgpack" or "none" (default "none")
+      -o string
             Offset to start consuming from. Either "earliest" or "latest" (default "latest")
-    -s string
-            Schema registry URI (default "http://localhost:8081")
+      -s string
+            Avro Schema registry URI (default "http://localhost:8081")
 
 
 ## Development
