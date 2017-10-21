@@ -43,7 +43,7 @@ func (tt *TailTopic) messageListening() {
 		msgVal, err := tt.decoder.decode(msg.Value)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to decode message! %v %v\n", msgVal, err)
-			return
+			continue
 		}
 		j, err := tt.formatter.format(msgVal)
 		if err != nil {

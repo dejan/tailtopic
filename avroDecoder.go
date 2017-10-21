@@ -43,7 +43,10 @@ func (sr *avroSchemaRegistryDecoder) fetchCodec(version uint32) (*goavro.Codec, 
 	defer resp.Body.Close()
 	schema, _ := ioutil.ReadAll(resp.Body)
 	res := schemaRegistryResponse{}
-	json.Unmarshal(schema, &res)
+	err = json.Unmarshal(schema, &res)
+	if err != nil {
+		return nil, err
+	}
 	codec, err := goavro.NewCodec(res.Schema)
 	if err != nil {
 		return nil, err
