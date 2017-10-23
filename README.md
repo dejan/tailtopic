@@ -4,7 +4,7 @@ Kafka console consumer in Go. Supports Avro and MessagePack decoding.
 
 ## Install
 
-    go install github.com/dejan/tailtopic/cmd/tailtopic
+    go get github.com/dejan/tailtopic/cmd/tailtopic
 
 ## Usage
 
