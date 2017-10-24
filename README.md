@@ -8,7 +8,11 @@ Kafka console consumer in Go. Supports Avro and MessagePack decoding.
 
 ## Usage
 
-To get help run: `tailtopic -h`
+To get help run:
+
+    tailtopic -h
+
+You should the syntax and available options:
 
     Usage: tailtopic <options> topicname
 
@@ -22,11 +26,11 @@ To get help run: `tailtopic -h`
       -s string
             Avro Schema registry URI. If not provided, Kafka broker host will be used (default "http://{kafkabroker}:8081")
 
-For example, to tail *tracking* topic with MessagePack serialized messages and if *kfk001* is one of the Kafka broker:
+For example, to tail *tracking* topic with MessagePack serialized messages and if *kfk001* is one of the Kafka brokers then run:
 
     tailtopic -b kfk001 -d msgpack tracking
 
-For example, to tail *client_request_v1* topic with Avro serialized messages and if *kfk001* is one of the Kafka broker and the schema registry is reachable on the same host:
+Or, if you want to tail *client_request_v1* topic with Avro serialized messages and if *kfk001* is one of the Kafka brokers and the schema registry is reachable on the same host then just change the topic name and decoder (-d) flag to avro:
 
     tailtopic -b kfk001 -d avro client_request_v1
 
