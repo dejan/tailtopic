@@ -61,3 +61,25 @@ func TestStart(t *testing.T) {
 		}
 	}
 }
+
+func Test_getHost(t *testing.T) {
+	examples := []struct {
+		brokerIn     string
+		schemaregIn  string
+		brokerOut    string
+		schemaregOut string
+	}{
+		{"kfk001", "http://{broker}:8081", "kfk001:9092", "http://kfk001:8081"},
+		{"kfk001:9092", "http://{broker}:8081", "kfk001:9092", "http://kfk001:8081"},
+	}
+
+	for _, example := range examples {
+		b, s := getHosts(example.brokerIn, example.schemaregIn)
+		if b != example.brokerOut {
+			t.Errorf("Failed! expected=%s, actual=%s", example.brokerOut, b)
+		}
+		if s != example.schemaregOut {
+			t.Errorf("Failed! expected=%s, actual=%s", example.schemaregOut, s)
+		}
+	}
+}

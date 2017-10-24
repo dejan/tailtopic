@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"regexp"
+	"strings"
 )
 
 // TailTopic holds refrences of message processing components.
@@ -68,12 +70,13 @@ func (tt *TailTopic) consume() {
 }
 
 // NewKafkaTailTopic creates new TailTopic with Kafka consumer and specified decoder
-func NewKafkaTailTopic(topic, offset, msgDecoder, broker, schemaregURI string) *TailTopic {
+func NewKafkaTailTopic(topic, offset, msgDecoder, brokerIn, schemaregIn string) *TailTopic {
+	broker, schemareg := getHosts(brokerIn, schemaregIn)
 	var decoder decoder
 	var formatter formatter
 	switch msgDecoder {
 	case "avro":
-		decoder = newAvroDecoder(schemaregURI)
+		decoder = newAvroDecoder(schemareg)
 		formatter = &jsonFormatter{}
 	case "msgpack":
 		decoder = &msgpackDecoder{}
@@ -93,4 +96,15 @@ func NewKafkaTailTopic(topic, offset, msgDecoder, broker, schemaregURI string) *
 		make(chan *string, 256),
 		make(chan bool),
 	}
+}
+
+func getHosts(brokerInput, schemaregIn string) (string, string) {
+	brokerInputElements := strings.Split(brokerInput, ":")
+	brokerHost := brokerInputElements[0]
+	var brokerPort = "9092"
+	if len(brokerInputElements) > 1 {
+		brokerPort = brokerInputElements[1]
+	}
+	schemareg := regexp.MustCompile("{.*}").ReplaceAllString(schemaregIn, brokerHost)
+	return brokerHost + ":" + brokerPort, schemareg
 }
