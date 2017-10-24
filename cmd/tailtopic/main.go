@@ -17,8 +17,8 @@ func usage() {
 
 func main() {
 	flag.Usage = usage
-	broker := flag.String("b", "localhost:9092", "One of the Kafka brokers host:port")
-	schemaregURI := flag.String("s", "http://localhost:8081", "Avro Schema registry URI")
+	broker := flag.String("b", "localhost:9092", "One of the Kafka brokers host[:port]")
+	schemaregURI := flag.String("s", "http://{kafkabroker}:8081", "Avro Schema registry URI. If not provided, Kafka broker host will be used")
 	offset := flag.String("o", "latest", `Offset to start consuming from. Either "earliest" or "latest"`)
 	decoder := flag.String("d", "none", `Message decoder. Either "avro", "msgpack" or "none"`)
 

@@ -8,18 +8,27 @@ Kafka console consumer in Go. Supports Avro and MessagePack decoding.
 
 ## Usage
 
+To get help run: `tailtopic -h`
+
     Usage: tailtopic <options> topicname
 
     Options:
       -b string
-            One of the Kafka brokers host:port (default "localhost:9092")
+            One of the Kafka brokers host[:port] (default "localhost:9092")
       -d string
             Message decoder. Either "avro", "msgpack" or "none" (default "none")
       -o string
             Offset to start consuming from. Either "earliest" or "latest" (default "latest")
       -s string
-            Avro Schema registry URI (default "http://localhost:8081")
+            Avro Schema registry URI. If not provided, Kafka broker host will be used (default "http://{kafkabroker}:8081")
 
+For example, to tail *tracking* topic with MessagePack serialized messages and if *kfk001* is one of the Kafka broker:
+
+    tailtopic -b kfk001 -d msgpack tracking
+
+For example, to tail *client_request_v1* topic with Avro serialized messages and if *kfk001* is one of the Kafka broker and the schema registry is reachable on the same host:
+
+    tailtopic -b kfk001 -d avro client_request_v1
 
 ## Development
 
