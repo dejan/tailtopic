@@ -32,7 +32,7 @@ For example, to tail *tracking* topic with MessagePack serialized messages and i
 
 Or, if you want to tail *client_request_v1* topic with Avro serialized messages and if *kfk001* is one of the Kafka brokers and the schema registry is reachable on the same host then just change the topic name and decoder (-d) flag to avro:
 
-    tailtopic -b kfk001 -d avro client_request_v1
+    tailtopic -b kfk001 -d avro requests
 
 ## Development
 
