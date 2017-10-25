@@ -12,7 +12,7 @@ To get help run:
 
     tailtopic -h
 
-You should the syntax and available options:
+You should see the syntax and available options:
 
     Usage: tailtopic <options> topicname
 
