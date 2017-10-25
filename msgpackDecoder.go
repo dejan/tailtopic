@@ -1,11 +1,22 @@
 package tailtopic
 
-import "github.com/vmihailenco/msgpack"
+import (
+	"encoding/json"
+
+	"github.com/vmihailenco/msgpack"
+)
 
 type msgpackDecoder struct{}
 
-func (md *msgpackDecoder) decode(bytes []byte) (interface{}, error) {
+func (md *msgpackDecoder) decode(bytes []byte) (string, error) {
 	var msg interface{}
 	err := msgpack.Unmarshal(bytes, &msg)
-	return msg, err
+	if err != nil {
+		return "", err
+	}
+	jsonBytes, err := json.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBytes), nil
 }

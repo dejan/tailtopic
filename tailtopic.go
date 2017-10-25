@@ -10,28 +10,24 @@ import (
 
 // TailTopic holds refrences of message processing components.
 type TailTopic struct {
-	consumer   consumer
-	decoder    decoder
-	formatter  formatter
-	dispatcher dispatcher
-	consumed   chan []byte
-	formatted  chan *string
-	closing    chan bool
+	consumer consumer
+	messages chan message
+	closing  chan bool
 }
 
 // Start kicks off consuming and message processing.
-// Messages flow through components like this:
-//
-// consumer -|
-//           | (consumed)
-//           |- decoder -> formatter -|
-//                                    | (formatted)
-//                                    |- dispatcher
 func (tt *TailTopic) Start() {
 	go tt.signalListening()
-	go tt.consumedListening()
-	go tt.formattedListening()
+	go tt.messageListening()
 	tt.consume()
+}
+
+type message struct {
+	key       string
+	value     string
+	topic     string
+	partition int32
+	offset    int64
 }
 
 func (tt *TailTopic) signalListening() {
@@ -41,29 +37,14 @@ func (tt *TailTopic) signalListening() {
 	close(tt.closing)
 }
 
-func (tt *TailTopic) consumedListening() {
-	for msg := range tt.consumed {
-		msgVal, err := tt.decoder.decode(msg)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to decode message! %v %v\n", msgVal, err)
-			continue
-		}
-		j, err := tt.formatter.format(msgVal)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to format message! %v %v\n", j, err)
-		}
-		tt.formatted <- &j
-	}
-}
-
-func (tt *TailTopic) formattedListening() {
-	for msg := range tt.formatted {
-		tt.dispatcher.dispatch(*msg)
+func (tt *TailTopic) messageListening() {
+	for msg := range tt.messages {
+		fmt.Println(msg.value)
 	}
 }
 
 func (tt *TailTopic) consume() {
-	err := tt.consumer.consume(tt.consumed, tt.closing)
+	err := tt.consumer.consume(tt.messages, tt.closing)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to start consumer! %v\n", err)
 	}
@@ -73,27 +54,20 @@ func (tt *TailTopic) consume() {
 func NewKafkaTailTopic(topic, offset, msgDecoder, brokerIn, schemaregIn string) *TailTopic {
 	broker, schemareg := getHosts(brokerIn, schemaregIn)
 	var decoder decoder
-	var formatter formatter
 	switch msgDecoder {
 	case "avro":
 		decoder = newAvroDecoder(schemareg)
-		formatter = &jsonFormatter{}
 	case "msgpack":
 		decoder = &msgpackDecoder{}
-		formatter = &jsonFormatter{}
 	case "none":
 		fallthrough
 	default:
 		decoder = &noopDecoder{}
-		formatter = &noopFormatter{}
 	}
+
 	return &TailTopic{
-		&kafkaConsumer{topic, offset, broker},
-		decoder,
-		formatter,
-		&consoleDispatcher{},
-		make(chan []byte, 256),
-		make(chan *string, 256),
+		&kafkaConsumer{topic, offset, broker, decoder},
+		make(chan message, 256),
 		make(chan bool),
 	}
 }
