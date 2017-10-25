@@ -58,15 +58,20 @@ func (sr *avroSchemaRegistryDecoder) fetchCodec(version uint32) (*goavro.Codec, 
 	return codec, nil
 }
 
-func (sr *avroSchemaRegistryDecoder) decode(msg []byte) (interface{}, error) {
+func (sr *avroSchemaRegistryDecoder) decode(msg []byte) (string, error) {
 	version := binary.BigEndian.Uint32(msg[1:5])
 	codec, err := sr.fetchCodec(version)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	n, _, err := codec.NativeFromBinary(msg[5:])
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return n, nil
+
+	jsonBytes, err := json.Marshal(n)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBytes), nil
 }
