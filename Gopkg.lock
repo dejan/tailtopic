@@ -33,6 +33,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/elodina/go-avro"
+  packages = ["."]
+  revision = "0c8185d9a3ba82aeac98db3313a268a5b6df99b5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/elodina/go-kafka-avro"
+  packages = ["."]
+  revision = "ab6b1d1c9a2361e639af25c13653fee505b5d2ce"
+
+[[projects]]
+  branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "130e6b02ab059e7b717a096f397c5b60111cae74"
@@ -42,12 +54,6 @@
   name = "github.com/golang/snappy"
   packages = ["."]
   revision = "553a641470496b2327abcac10b36396bd98e45c9"
-
-[[projects]]
-  name = "github.com/linkedin/goavro"
-  packages = ["."]
-  revision = "dc8a75b5092af16ee96827a8105d5c7adb51aac8"
-  version = "v2.0.0"
 
 [[projects]]
   name = "github.com/pierrec/lz4"
@@ -88,6 +94,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "01cfdafe313b5742bfd272a81868fcd00043987787acac7875082e70737b47c4"
+  inputs-digest = "319b518e0b10215f26fdd32b840f5c23c0eff7ba5db68dca6662a8382db99e11"
   solver-name = "gps-cdcl"
   solver-version = 1
