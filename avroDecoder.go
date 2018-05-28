@@ -1,8 +1,8 @@
 package tailtopic
 
 import (
-	avro "github.com/elodina/go-avro"
-	kavro "github.com/elodina/go-kafka-avro"
+	avro "github.com/dejan/go-avro"
+	kavro "github.com/dejan/go-kafka-avro"
 )
 
 type avroSchemaRegistryDecoder struct {
