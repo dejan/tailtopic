@@ -6,6 +6,10 @@ Kafka console consumer in Go. Supports Avro and MessagePack decoding.
 
     go get github.com/dejan/tailtopic/cmd/tailtopic
 
+Or, if you don't want to install Go, you can also use it from Docker:
+
+    docker run desimic/tailtopic -h
+
 ## Usage
 
 To get help run:
@@ -33,10 +37,6 @@ For example, to tail *tracking* topic with MessagePack serialized messages and i
 Or, if you want to tail *requests* topic with Avro serialized messages and if *kfk001* is one of the Kafka brokers and the schema registry is reachable on the same host then just change the topic name and decoder (-d) flag to avro:
 
     tailtopic -b kfk001 -d avro requests
-
-You can also run the command from a container:
-
-    docker run desimic/tailtopic -b kfk001 -o earliest -d logins
 
 ## Development
 
