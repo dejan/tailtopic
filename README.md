@@ -34,6 +34,10 @@ Or, if you want to tail *requests* topic with Avro serialized messages and if *k
 
     tailtopic -b kfk001 -d avro requests
 
+You can also run the command from a container:
+
+    docker run desimic/tailtopic -b kfk001 -o earliest -d logins
+
 ## Development
 
 ## Run tests
